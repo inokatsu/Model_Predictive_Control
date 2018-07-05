@@ -20,16 +20,16 @@ double dt = 0.1;
 //
 // This is the length from front to CoG that has a similar radius.
 const double Lf = 2.67;
-double ref_v = 40;
+double ref_v = 100;
 
 // weights for cost function
 const double w_CTE = 2000;
 const double w_EPSI = 2000;
 const double w_V = 1;
-const double w_DELTA = 10;
-const double w_A = 10;
-const double w_DDELTA = 150;
-const double w_DA = 15;
+const double w_DELTA = 5;
+const double w_A = 5;
+const double w_DDELTA = 200;
+const double w_DA = 10;
 
 
 // The solver takes all the state variables and actuator

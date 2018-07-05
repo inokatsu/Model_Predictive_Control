@@ -100,13 +100,13 @@ int main() {
           Eigen::VectorXd ptsyWaypoint(ptsy.size());
           
           for(int i = 1; i < ptsx.size(); i++){
-            ptsxWaypoint[i] = (ptsx[i] - px) * cos(-psi) - (ptsy[i] - py) * sin(-psi);
-            ptsyWaypoint[i] = (ptsx[i] - px) * sin(-psi) + (ptsy[i] - py) * cos(-psi);
+            ptsxWaypoint[i] = (ptsx[i] - px) * cos(0-psi) - (ptsy[i] - py) * sin(0-psi);
+            ptsyWaypoint[i] = (ptsx[i] - px) * sin(0-psi) + (ptsy[i] - py) * cos(0-psi);
           }
           
           auto coeffs = polyfit(ptsxWaypoint, ptsyWaypoint,3);
           double cte = polyeval(coeffs, 0); // cross track error
-          double epsi = - atan(coeffs[1]); // orientation error
+          double epsi = -atan(coeffs[1]); // orientation error
           
           
           // Add Latency
@@ -130,7 +130,7 @@ int main() {
           auto mpc_result = mpc.Solve(state, coeffs);
           
           
-          steer_value = mpc_result[0] / deg2rad(25); // convert to range [-1..1]
+          steer_value = mpc_result[0] / (deg2rad(25) * Lf); // convert to range [-1..1]
           throttle_value = mpc_result[1];
           
           json msgJson;
@@ -161,9 +161,11 @@ int main() {
 //            next_x_vals.push_back(ptsxWaypoint[i]);
 //            next_y_vals.push_back(ptsyWaypoint[i]);
 //          }
-          for (int i = 0; i < 5; i++) {
-            next_x_vals.push_back(i*5);
-            next_y_vals.push_back(polyeval(coeffs, i*5));
+          double poly_inc = 2.5;
+          int num_points = 25;
+          for (int i = 0; i < num_points; i++) {
+            next_x_vals.push_back(i*poly_inc);
+            next_y_vals.push_back(polyeval(coeffs, i*poly_inc));
           }
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
