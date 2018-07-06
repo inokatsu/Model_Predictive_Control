@@ -2,7 +2,7 @@
 
 [//]: # (Image References)
 
-[image1]: ./images/MMPC_result_movie.gif "result gif"
+[image1]: ./images/MPC_result_movie.gif "result gif"
 [image2]: ./images/model_predictive_control_formula.png "MPC formula"
 
 ![result gif][image1]
