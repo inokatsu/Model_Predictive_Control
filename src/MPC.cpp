@@ -20,7 +20,7 @@ double dt = 0.1;
 //
 // This is the length from front to CoG that has a similar radius.
 const double Lf = 2.67;
-double ref_v = 100;
+double ref_v = 80;
 
 // weights for cost function
 const double w_CTE = 2000;

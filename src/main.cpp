@@ -118,7 +118,7 @@ int main() {
           double delay_v = v + throttle_value * delay_t;
           double delay_cte = cte + v * sin(epsi) * delay_t;
           double delay_epsi = epsi + delay_psi;
-//
+
           /*
           * Calculate steering angle and throttle using MPC.
           *

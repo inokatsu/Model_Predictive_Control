@@ -1,5 +1,92 @@
-# CarND-Controls-MPC
-Self-Driving Car Engineer Nanodegree Program
+# Model Predictive Controls(MPC) project)
+
+[//]: # (Image References)
+
+[image1]: ./images/MMPC_result_movie.gif "result gif"
+[image2]: ./images/model_predictive_control_formula.png "MPC formula"
+
+![result gif][image1]
+#### Displaying the MPC trajectory path in green, and the polynomial fitted reference path in yellow.
+
+## Introduction
+The project goal is to make a simulated car drive around a track by using model predictive control. 
+
+
+## Model
+
+Kinematic models are simplification of dynamic models that ignore tire forces, gravity, and mass. This simplication reduces the accuracy of the models, but it also makes them more tractable.
+The kinematic model of this project includes 6 vehicle states: x, y, orientation angle(psi), velocity, cross tracking error and psi error(epsi). Actuator outputs are throttle value and steering angle.
+
+![model formula][image2]
+###### Sited from Udacity SDND program
+
+## Timestep Length and Elapsed Duration
+
+Timestep length slould be not only large enough to predict further status ahead, but also need to be small enough to compute efficiently. 
+
+Timestep frequency need to be small to accurately approximate a continuous reference trajectory, but small frequency needs a lot of computational cost.
+
+Timestep length (N) is chosen to be `10`, and timestep frequency (dt) `0.1`, which means that 1s ahead (= N * dt) state is predicted.
+WIth 20 Timestep length the controller starts to run slower and it went out of the track. 
+
+
+
+
+## Polynominal Fitting and MPC Preprocessing
+
+To estimate waypoints I transformed the waypoints from gloval coordinate coordinate system to the vehicle's coordinate system.
+
+```cpp
+// Convert waypoints to car's coordinate
+Eigen::VectorXd ptsxWaypoint(ptsx.size());
+Eigen::VectorXd ptsyWaypoint(ptsy.size());
+
+for(int i = 1; i < ptsx.size(); i++){
+  ptsxWaypoint[i] = (ptsx[i] - px) * cos(0-psi) - (ptsy[i] - py) * sin(0-psi);
+  ptsyWaypoint[i] = (ptsx[i] - px) * sin(0-psi) + (ptsy[i] - py) * cos(0-psi);
+}
+
+```
+
+The reference trajectory is typically passed to the control block as a polynomial. The polynomial is usually 3rd order, since third order polynomials will fit trajectories for most roads. 
+
+To fit a polynomial, I used a function which is adupted from here:
+https://github.com/JuliaMath/Polynomials.jl/blob/master/src/Polynomials.jl#L676-L716
+
+
+
+## Model Predictive Control with Latency
+there's a 100 millisecond latency between actuations commands on top of the connection latency. To deal with this latency, it is artificially included before sending atuations to the simulator to mimic typical response times for real world cars.
+
+The latency factor was included in the state vector before sending in to the model calculation.
+
+```cpp
+// Add Latency
+const double delay_t = 0.1;
+
+double delay_px = v * delay_t;
+double delay_py = 0;
+double delay_psi = v * (-steer_value) * delay_t / Lf;
+double delay_v = v + throttle_value * delay_t;
+double delay_cte = cte + v * sin(epsi) * delay_t;
+double delay_epsi = epsi + delay_psi;
+
+Eigen::VectorXd state(6);
+state << delay_px, delay_py, delay_psi, delay_v, delay_cte, delay_epsi;
+auto mpc_result = mpc.Solve(state, coeffs);
+
+```
+
+
+
+
+
+## Result video
+
+https://youtu.be/IoL0CUUihWM
+
+
+
 
 ---
 
