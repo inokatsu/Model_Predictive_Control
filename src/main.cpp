@@ -105,19 +105,25 @@ int main() {
           }
           
           auto coeffs = polyfit(ptsxWaypoint, ptsyWaypoint,3);
-          double cte = polyeval(coeffs, 0); // cross track error
-          double epsi = -atan(coeffs[1]); // orientation error
           
           
           // Add Latency
           const double delay_t = 0.1;
 
-          double delay_px = v * delay_t;
-          double delay_py = 0;
-          double delay_psi = v * (-steer_value) * delay_t / Lf;
+          // Initial state.
+          const double x0 = 0;
+          const double y0 = 0;
+          const double psi0 = 0;
+          const double cte0 = coeffs[0]; // cross track error
+          const double epsi0 = -atan(coeffs[1]); // orientation error
+          
+          
+          double delay_px = x0 + ( v * cos(psi0) * delay_t );
+          double delay_py = y0 + ( v * sin(psi0) * delay_t ); // 0
+          double delay_psi = psi0 - ( v * steer_value * delay_t / Lf );
           double delay_v = v + throttle_value * delay_t;
-          double delay_cte = cte + v * sin(epsi) * delay_t;
-          double delay_epsi = epsi + delay_psi;
+          double delay_cte = cte0 + v * sin(epsi0) * delay_t;
+          double delay_epsi = epsi0 - ( v * atan(coeffs[1]) * delay_t / Lf );
 
           /*
           * Calculate steering angle and throttle using MPC.
